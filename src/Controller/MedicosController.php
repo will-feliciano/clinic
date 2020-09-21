@@ -37,7 +37,7 @@ class MedicosController extends AbstractController
     public function create(Request $request): JsonResponse
     {
         $content = $request->getContent();
-        $medico = $this->medicoFactory->createMedico($content);
+        $medico = $this->medicoFactory->createMedico($content);        
         
         $this->entityManager->persist($medico);
         $this->entityManager->flush();
@@ -59,8 +59,9 @@ class MedicosController extends AbstractController
             return new JsonResponse("", Response::HTTP_NOT_FOUND);    
         }
 
-        $medicoAtual->crm = $medico->crm;
-        $medicoAtual->nome = $medico->nome;
+        $medicoAtual
+            ->setCrm($medico->getCrm())
+            ->setNome($medico->getNome());
         
         $this->entityManager->flush();
 
