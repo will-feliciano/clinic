@@ -35,9 +35,8 @@ class MedicosController extends AbstractController
      * @Route ("/medicos", methods={"POST"})
      */
     public function create(Request $request): JsonResponse
-    {
-        $content = $request->getContent();
-        $medico = $this->medicoFactory->createMedico($content);        
+    {        
+        $medico = $this->medicoFactory->createMedico($request->getContent());        
         
         $this->entityManager->persist($medico);
         $this->entityManager->flush();

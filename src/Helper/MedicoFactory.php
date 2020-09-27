@@ -17,10 +17,12 @@ class MedicoFactory
         $this->especialidadeRepository = $especialidadeRepository;
     }
 
-    public function createMedico(string $json): Medico
+    public function createMedico($json): Medico
     {
-        $dado = json_decode($json);
+        $dado =  json_decode($json);                
+
         $especialidadeId = $dado->especialidadeId;
+        
         $especialidade = $this->especialidadeRepository->find($especialidadeId);        
 
         $medico = new Medico();
