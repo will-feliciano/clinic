@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Medico;
 use App\Helper\MedicoFactory;
+use App\Repository\MedicoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,12 +24,19 @@ class MedicosController extends AbstractController
      */
     private $medicoFactory;
 
+    /**
+     * @var MedicoRepository
+     */
+    private $medicoRepository;
+
     public function __construct(
         EntityManagerInterface $entityManager,
-        MedicoFactory $medicoFactory
+        MedicoFactory $medicoFactory,
+        MedicoRepository $medicoRepository
     ) {
         $this->entityManager = $entityManager;
         $this->medicoFactory = $medicoFactory;
+        $this->medicoRepository = $medicoRepository;
     }
 
     /**
@@ -52,7 +60,7 @@ class MedicosController extends AbstractController
         $content = $request->getContent();
         $medico = $this->medicoFactory->createMedico($content);
 
-        $medicoAtual = $this->getMedico($id);
+        $medicoAtual = $this->medicoRepository->find($id);
 
         if(is_null($medicoAtual)) {
             return new JsonResponse("", Response::HTTP_NOT_FOUND);    
@@ -72,7 +80,7 @@ class MedicosController extends AbstractController
      */
     public function remove(int $id)
     {
-        $medico = $this->getMedico($id);
+        $medico = $this->medicoRepository->find($id);
         $this->entityManager->remove($medico);
 
         $this->entityManager->flush();
@@ -85,9 +93,7 @@ class MedicosController extends AbstractController
      */
     public function getAll(): Response
     {
-        $medicos = $this->entityManager
-            ->getRepository(Medico::class)
-            ->findAll();
+        $medicos = $this->medicoRepository->findAll();
         
         return new JsonResponse($medicos);
     }
@@ -97,7 +103,7 @@ class MedicosController extends AbstractController
      */
     public function getById($id): Response
     {
-        $medico = $this->getMedico($id);
+        $medico = $this->medicoRepository->find($id);
 
         return new JsonResponse(
             $medico,
@@ -106,14 +112,15 @@ class MedicosController extends AbstractController
     }
 
     /**
-     * @param int $id
-     * @return object|null
+     * @Route ("/especialidades/{especialidadeId}/medicos", methods={"GET"})
      */
-    public function getMedico($id)
+    public function getBySpecialty(int $especialidadeId): Response
     {
-        //return $this->entityManager->getReference(Medico::class, $id);
-        return $this->entityManager
-            ->getRepository(Medico::class)
-            ->find($id);
+        $medicos = $this->medicoRepository->findBy([
+            "especialidade" => $especialidadeId
+        ]);
+
+        return new JsonResponse($medicos);
     }
+    
 }
