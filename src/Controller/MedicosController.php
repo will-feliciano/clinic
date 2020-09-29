@@ -4,15 +4,15 @@ namespace App\Controller;
 
 use App\Entity\Medico;
 use App\Helper\MedicoFactory;
+use App\Controller\BaseController;
 use App\Repository\MedicoRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class MedicosController extends AbstractController
+class MedicosController extends BaseController
 {
     /**
      * @var EntityManagerInterface
@@ -34,6 +34,7 @@ class MedicosController extends AbstractController
         MedicoFactory $medicoFactory,
         MedicoRepository $medicoRepository
     ) {
+        parent::__construct($medicoRepository);
         $this->entityManager = $entityManager;
         $this->medicoFactory = $medicoFactory;
         $this->medicoRepository = $medicoRepository;
@@ -86,16 +87,6 @@ class MedicosController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse("", Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @Route ("/medicos", methods={"GET"})
-     */
-    public function getAll(): Response
-    {
-        $medicos = $this->medicoRepository->findAll();
-        
-        return new JsonResponse($medicos);
     }
 
     /**
