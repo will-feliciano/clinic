@@ -14,43 +14,13 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MedicosController extends BaseController
 {
-    /**
-     * @var EntityManagerInterface
-     */
-    private $entityManager;
-
-    /**
-     * @var MedicoFactory
-     */
-    private $medicoFactory;
-
-    /**
-     * @var MedicoRepository
-     */
-    private $medicoRepository;
-
+    
     public function __construct(
         EntityManagerInterface $entityManager,
         MedicoFactory $medicoFactory,
         MedicoRepository $medicoRepository
     ) {
-        parent::__construct($medicoRepository);
-        $this->entityManager = $entityManager;
-        $this->medicoFactory = $medicoFactory;
-        $this->medicoRepository = $medicoRepository;
-    }
-
-    /**
-     * @Route ("/medicos", methods={"POST"})
-     */
-    public function create(Request $request): JsonResponse
-    {        
-        $medico = $this->medicoFactory->createMedico($request->getContent());        
-        
-        $this->entityManager->persist($medico);
-        $this->entityManager->flush();
-
-        return new JsonResponse($medico, Response::HTTP_CREATED);
+        parent::__construct($medicoRepository, $entityManager, $medicoFactory);                
     }
 
     /**
@@ -59,9 +29,9 @@ class MedicosController extends BaseController
     public function update(int $id, Request $request): JsonResponse
     {
         $content = $request->getContent();
-        $medico = $this->medicoFactory->createMedico($content);
+        $medico = $this->factory->createEntity($content);
 
-        $medicoAtual = $this->medicoRepository->find($id);
+        $medicoAtual = $this->repository->find($id);
 
         if(is_null($medicoAtual)) {
             return new JsonResponse("", Response::HTTP_NOT_FOUND);    
@@ -74,44 +44,17 @@ class MedicosController extends BaseController
         $this->entityManager->flush();
 
         return new JsonResponse($medicoAtual, Response::HTTP_CREATED);
-    }
-
-    /**
-     * @Route("/medicos/{id}", methods={"DELETE"})
-     */
-    public function remove(int $id)
-    {
-        $medico = $this->medicoRepository->find($id);
-        $this->entityManager->remove($medico);
-
-        $this->entityManager->flush();
-
-        return new JsonResponse("", Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * @Route ("/medicos/{id}", methods={"GET"})
-     */
-    public function getById($id): Response
-    {
-        $medico = $this->medicoRepository->find($id);
-
-        return new JsonResponse(
-            $medico,
-            is_null($medico) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK
-        );
-    }
+    }       
 
     /**
      * @Route ("/especialidades/{especialidadeId}/medicos", methods={"GET"})
      */
     public function getBySpecialty(int $especialidadeId): Response
     {
-        $medicos = $this->medicoRepository->findBy([
+        $medicos = $this->repository->findBy([
             "especialidade" => $especialidadeId
         ]);
 
         return new JsonResponse($medicos);
-    }
-    
+    }    
 }

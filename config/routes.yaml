@@ -2,12 +2,37 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
+create_medico:
+    path: /medicos
+    controller: App\Controller\MedicosController::create
+    methods: POST
+
 medicos:
     path: /medicos
     controller: App\Controller\MedicosController::getAll
     methods: GET
 
+medico:
+    path: /medicos/{id}
+    controller: App\Controller\MedicosController::getById
+    methods: GET
+
+remove_medico:
+    path: /medicos/{id}
+    controller: App\Controller\MedicosController::remove
+    methods: DELETE
+
+create_especialidade:
+    path: /especialidades
+    controller: App\Controller\EspecialidadesController::create
+    methods: POST
+
 especialidades:
     path: /especialidades
     controller: App\Controller\EspecialidadesController::getAll
     methods: GET
+
+remove_especialidade:
+    path: /especialidades/{id}
+    controller: App\Controller\EspecialidadesController::remove
+    methods: DELETE
