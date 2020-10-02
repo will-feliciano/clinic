@@ -7,6 +7,11 @@ create_medico:
     controller: App\Controller\MedicosController::create
     methods: POST
 
+update_medico:
+    path: /medicos/{id}
+    controller: App\Controller\MedicosController::update
+    methods: PUT
+
 medicos:
     path: /medicos
     controller: App\Controller\MedicosController::getAll
@@ -27,6 +32,11 @@ create_especialidade:
     controller: App\Controller\EspecialidadesController::create
     methods: POST
 
+update_especialidade:
+    path: /especialidades/{id}
+    controller: App\Controller\EspecialidadesController::update
+    methods: PUT
+    
 especialidades:
     path: /especialidades
     controller: App\Controller\EspecialidadesController::getAll

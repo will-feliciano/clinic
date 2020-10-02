@@ -22,21 +22,9 @@ class EspecialidadesController extends BaseController
     ) {
         parent::__construct($repository, $entityManager, $factory);        
     }
-     
-
-    /**
-     * @Route ("/especialidades/{id}", methods={"PUT"})
-     */
-    public function update(int $id, Request $request): JsonResponse
+        
+    public function updateEntity($oldEntity, $newEntity)
     {
-        $request = $request->getContent();
-        $json = json_decode($request);
-
-        $especialidade = $this->repository->find($id);
-        $especialidade->setDescricao($json->descricao);
-
-        $this->entityManager->flush();
-
-        return new JsonResponse($especialidade);
-    }    
+        $oldEntity->setDescricao($newEntity->getDescricao());            
+    }
 }

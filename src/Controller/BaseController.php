@@ -44,7 +44,25 @@ abstract class BaseController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse($entity, Response::HTTP_CREATED);
-    }  
+    }
+
+    public function update(int $id, Request $request): JsonResponse
+    {
+        $content = $request->getContent();
+        $newEntity = $this->factory->createEntity($content);
+
+        $oldEntity = $this->repository->find($id);
+
+        if(is_null($oldEntity)) {
+            return new JsonResponse("", Response::HTTP_NOT_FOUND);    
+        }
+
+        $this->updateEntity($oldEntity, $newEntity);
+                
+        $this->entityManager->flush();
+
+        return new JsonResponse($oldEntity, Response::HTTP_CREATED);
+    }
 
     public function getAll(): Response
     {
@@ -70,5 +88,10 @@ abstract class BaseController extends AbstractController
         $this->entityManager->flush();
 
         return new JsonResponse("", Response::HTTP_NO_CONTENT);
-    } 
+    }
+
+    abstract public function updateEntity(
+        $oldEntity, 
+        $newEntity
+    );
 }
