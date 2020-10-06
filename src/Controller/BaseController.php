@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Helper\EntityFactory;
+use App\Helper\ExtractorDataRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,15 +25,21 @@ abstract class BaseController extends AbstractController
      * @var EntityFactory
      */
     protected $factory;
+    /**
+     * @var ExtractorDataRequest
+     */
+    protected $extractor;
 
     public function __construct(
         ObjectRepository $repository,
         EntityManagerInterface $entityManager,
-        EntityFactory $factory
+        EntityFactory $factory,
+        ExtractorDataRequest $extractor
     ) {
         $this->repository = $repository;
         $this->entityManager = $entityManager;
         $this->factory = $factory;
+        $this->extractor = $extractor;        
     }
 
     public function create(Request $request): Response
@@ -64,10 +71,13 @@ abstract class BaseController extends AbstractController
         return new JsonResponse($oldEntity, Response::HTTP_CREATED);
     }
 
-    public function getAll(): Response
+    public function getAll(Request $request): Response
     {
-        $entities = $this->repository->findAll();
-        
+        $order = $this->extractor->getDataOrder($request);
+        $filter = $this->extractor->getDataFilter($request);
+
+        $entities = $this->repository->findBy($filter, $order);
+                
         return new JsonResponse($entities);
     }
 

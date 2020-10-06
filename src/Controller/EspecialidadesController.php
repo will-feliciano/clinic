@@ -6,25 +6,22 @@ use App\Entity\Especialidade;
 use App\Repository\EspecialidadeRepository;
 use App\Controller\BaseController;
 use App\Helper\EspecialidadeFactory;
+use App\Helper\ExtractorDataRequest;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 class EspecialidadesController extends BaseController
-{   
-
+{
     public function __construct(
         EntityManagerInterface $entityManager,
         EspecialidadeRepository $repository,
-        EspecialidadeFactory $factory
+        EspecialidadeFactory $factory,
+        ExtractorDataRequest $extractor
     ) {
-        parent::__construct($repository, $entityManager, $factory);        
+        parent::__construct($repository, $entityManager, $factory, $extractor);
     }
-        
+
     public function updateEntity($oldEntity, $newEntity)
     {
-        $oldEntity->setDescricao($newEntity->getDescricao());            
+        $oldEntity->setDescricao($newEntity->getDescricao());
     }
 }
