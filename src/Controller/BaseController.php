@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Helper\EntityFactory;
 use App\Helper\ExtractorDataRequest;
+use App\Helper\ResponseFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -83,21 +84,29 @@ abstract class BaseController extends AbstractController
             $itens,
             ($page - 1) * $itens
         );
-                
-        return new JsonResponse(
+
+        $responseFactory = new ResponseFactory(
+            true,
             $entities,
-            $page != 0 ? Response::HTTP_OK : Response::HTTP_PARTIAL_CONTENT
+            Response::HTTP_OK,
+            $page,
+            $itens
         );
+                
+        return $responseFactory->getResponse();
     }
 
     public function getById($id): Response
     {
         $entity = $this->repository->find($id);
-        
-        return new JsonResponse(
+
+        $responseFactory = new ResponseFactory(
+            true,
             $entity,
             is_null($entity) ? Response::HTTP_NO_CONTENT : Response::HTTP_OK
         );
+
+        return $responseFactory->getResponse();
     }
 
     public function remove(int $id)

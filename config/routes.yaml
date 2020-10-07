@@ -42,6 +42,11 @@ especialidades:
     controller: App\Controller\EspecialidadesController::getAll
     methods: GET
 
+especialidade:
+    path: /especialidades/{id}
+    controller: App\Controller\EspecialidadesController::getById
+    methods: GET
+
 remove_especialidade:
     path: /especialidades/{id}
     controller: App\Controller\EspecialidadesController::remove
