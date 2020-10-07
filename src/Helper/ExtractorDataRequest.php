@@ -8,11 +8,16 @@ class ExtractorDataRequest
 {
     private function getAllRequest(Request $request)
     {
-        $order = $request->query->get('sort');
-        $filter = $request->query->all();
-        unset($filter['sort']);
+        $queryString = $request->query->all();
 
-        return [$order, $filter];
+        $order = array_key_exists('sort', $queryString)? $queryString['sort']: null;
+        unset($queryString['sort']);
+        $page = array_key_exists('page', $queryString)? $queryString['page']: 1;
+        unset($queryString['page']);
+        $itens = array_key_exists('itens', $queryString)? $queryString['itens']: 15;
+        unset($queryString['itens']);
+
+        return [$order, $queryString, $page, $itens];
     }
 
     public function getDataOrder(Request $request)
@@ -29,4 +34,10 @@ class ExtractorDataRequest
         return $filter;
     }
 
+    public function getDataPages(Request $request)
+    {
+        [, , $page, $itens] = $this->getAllRequest($request);
+
+        return [$page, $itens];
+    }
 }

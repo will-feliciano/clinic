@@ -75,10 +75,19 @@ abstract class BaseController extends AbstractController
     {
         $order = $this->extractor->getDataOrder($request);
         $filter = $this->extractor->getDataFilter($request);
+        [$page, $itens] = $this->extractor->getDataPages($request);
 
-        $entities = $this->repository->findBy($filter, $order);
+        $entities = $this->repository->findBy(
+            $filter,
+            $order,
+            $itens,
+            ($page - 1) * $itens
+        );
                 
-        return new JsonResponse($entities);
+        return new JsonResponse(
+            $entities,
+            $page != 0 ? Response::HTTP_OK : Response::HTTP_PARTIAL_CONTENT
+        );
     }
 
     public function getById($id): Response
