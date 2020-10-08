@@ -40,18 +40,24 @@ abstract class BaseController extends AbstractController
         $this->repository = $repository;
         $this->entityManager = $entityManager;
         $this->factory = $factory;
-        $this->extractor = $extractor;        
+        $this->extractor = $extractor;
     }
 
     public function create(Request $request): Response
     {
         $content = $request->getContent();
         $entity = $this->factory->createEntity($content);
-        
+
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
 
-        return new JsonResponse($entity, Response::HTTP_CREATED);
+        $responseFactory = new ResponseFactory(
+            true,
+            $entity,
+            Response::HTTP_CREATED
+        );
+
+        return $responseFactory->getResponse();
     }
 
     public function update(int $id, Request $request): JsonResponse
@@ -59,17 +65,28 @@ abstract class BaseController extends AbstractController
         $content = $request->getContent();
         $newEntity = $this->factory->createEntity($content);
 
-        $oldEntity = $this->repository->find($id);
+        try{
+            
+            $oldEntity = $this->updateEntity($id, $newEntity);
+            $this->entityManager->flush();
 
-        if(is_null($oldEntity)) {
-            return new JsonResponse("", Response::HTTP_NOT_FOUND);    
+            $responseFactory = new ResponseFactory(
+                true,
+                $oldEntity,
+                Response::HTTP_CREATED
+            );
+
+            return $responseFactory->getResponse();
+        } catch (\InvalidArgumentException $e) {
+
+            $responseFactory = new ResponseFactory(
+                false,
+                'Recurso não encontrado',
+                Response::HTTP_NOT_FOUND
+            );
+
+            return $responseFactory->getResponse(); 
         }
-
-        $this->updateEntity($oldEntity, $newEntity);
-                
-        $this->entityManager->flush();
-
-        return new JsonResponse($oldEntity, Response::HTTP_CREATED);
     }
 
     public function getAll(Request $request): Response
@@ -92,7 +109,7 @@ abstract class BaseController extends AbstractController
             $page,
             $itens
         );
-                
+
         return $responseFactory->getResponse();
     }
 
@@ -115,11 +132,17 @@ abstract class BaseController extends AbstractController
         $this->entityManager->remove($entity);
         $this->entityManager->flush();
 
-        return new JsonResponse("", Response::HTTP_NO_CONTENT);
+        $responseFactory = new ResponseFactory(
+            true,
+            "Item Removido",
+            Response::HTTP_NO_CONTENT
+        );
+
+        return $responseFactory->getResponse();
     }
 
     abstract public function updateEntity(
-        $oldEntity, 
+        int $id,
         $newEntity
     );
 }

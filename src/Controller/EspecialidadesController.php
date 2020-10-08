@@ -20,8 +20,16 @@ class EspecialidadesController extends BaseController
         parent::__construct($repository, $entityManager, $factory, $extractor);
     }
 
-    public function updateEntity($oldEntity, $newEntity)
+    public function updateEntity(int $id, $newEntity)
     {
+        $oldEntity = $this->repository->find($id);
+
+        if(is_null($oldEntity)) {
+            throw new \InvalidArgumentException();
+        }
+
         $oldEntity->setDescricao($newEntity->getDescricao());
+
+        return $oldEntity;
     }
 }
