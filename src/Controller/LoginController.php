@@ -72,7 +72,7 @@ class LoginController extends AbstractController
         $responseFactory = new ResponseFactory(
             false,
             [
-                'access_token' => JWT::encode(['username' => $user->getUsername()], 'bearer')
+                'access_token' => JWT::encode(['username' => $user->getUsername()], 'chave')
             ],
             Response::HTTP_OK
         );
