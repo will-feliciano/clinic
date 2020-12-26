@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Helper\EntityFactory;
 use App\Helper\ExtractorDataRequest;
 use App\Helper\ResponseFactory;
+use Psr\Cache\CacheItemPoolInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,17 +31,23 @@ abstract class BaseController extends AbstractController
      * @var ExtractorDataRequest
      */
     protected $extractor;
+    /**
+     * @var CacheItemPoolInterface
+     */
+    protected $cache;
 
     public function __construct(
         ObjectRepository $repository,
         EntityManagerInterface $entityManager,
         EntityFactory $factory,
-        ExtractorDataRequest $extractor
+        ExtractorDataRequest $extractor,
+        CacheItemPoolInterface $cache
     ) {
         $this->repository = $repository;
         $this->entityManager = $entityManager;
         $this->factory = $factory;
         $this->extractor = $extractor;
+        $this->cache = $cache;
     }
 
     public function create(Request $request): Response
@@ -50,6 +57,12 @@ abstract class BaseController extends AbstractController
 
         $this->entityManager->persist($entity);
         $this->entityManager->flush();
+
+        $cacheItem = $this->cache->getItem(
+            $this->cachePrefix(). $entity->getId()
+        );
+        $cacheItem->set($entity);
+        $this->cache->save($cacheItem);
 
         $responseFactory = new ResponseFactory(
             true,
