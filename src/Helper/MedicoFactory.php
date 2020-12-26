@@ -4,6 +4,7 @@ namespace App\Helper;
 
 use App\Entity\Medico;
 use App\Repository\EspecialidadeRepository;
+use App\Traits\CheckIfPropertyExists;
 
 class MedicoFactory implements EntityFactory
 {
@@ -21,14 +22,30 @@ class MedicoFactory implements EntityFactory
     {
         $dado =  json_decode($json);                
 
-        $especialidadeId = $dado->especialidadeId;
+        $especialidadeId = CheckIfPropertyExists::checkProperty(
+            $dado,
+            'especialidadeId',
+            'Médico'
+        );
         
         $especialidade = $this->especialidadeRepository->find($especialidadeId);        
 
         $medico = new Medico();
         $medico
-            ->setCrm($dado->crm)
-            ->setNome($dado->nome)
+            ->setCrm(
+                CheckIfPropertyExists::checkProperty(
+                    $dado,
+                    'crm',
+                    'Médico'
+                )
+            )
+            ->setNome(
+                CheckIfPropertyExists::checkProperty(
+                    $dado,
+                    'nome',
+                    'Médico'
+                )
+            )
             ->setEspecialidade($especialidade);
 
         return $medico;
