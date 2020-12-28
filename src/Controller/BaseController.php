@@ -79,9 +79,13 @@ abstract class BaseController extends AbstractController
         $newEntity = $this->factory->createEntity($content);
 
         try{
-            
+
             $oldEntity = $this->updateEntity($id, $newEntity);
             $this->entityManager->flush();
+
+            $cacheItem = $this->cache->getItem($this->cachePrefix() . $id);
+            $cacheItem->set($newEntity);
+            $this->cache->save($cacheItem);
 
             $responseFactory = new ResponseFactory(
                 true,
@@ -128,7 +132,9 @@ abstract class BaseController extends AbstractController
 
     public function getById($id): Response
     {
-        $entity = $this->repository->find($id);
+        $entity = $this->cache->hasItem($this->cachePrefix() . $id)
+            ? $this->cache->getItem($this->cachePrefix() . $id)->get()
+            : $this->repository->find($id);
 
         $responseFactory = new ResponseFactory(
             true,
@@ -144,6 +150,8 @@ abstract class BaseController extends AbstractController
         $entity = $this->repository->find($id);
         $this->entityManager->remove($entity);
         $this->entityManager->flush();
+
+        $this->cache->deleteItem($this->cachePrefix() . $id);
 
         $responseFactory = new ResponseFactory(
             true,
