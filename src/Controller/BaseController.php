@@ -8,6 +8,7 @@ use App\Helper\ResponseFactory;
 use Psr\Cache\CacheItemPoolInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ObjectRepository;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,19 +36,25 @@ abstract class BaseController extends AbstractController
      * @var CacheItemPoolInterface
      */
     protected $cache;
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     public function __construct(
         ObjectRepository $repository,
         EntityManagerInterface $entityManager,
         EntityFactory $factory,
         ExtractorDataRequest $extractor,
-        CacheItemPoolInterface $cache
+        CacheItemPoolInterface $cache,
+        LoggerInterface $logger
     ) {
         $this->repository = $repository;
         $this->entityManager = $entityManager;
         $this->factory = $factory;
         $this->extractor = $extractor;
         $this->cache = $cache;
+        $this->logger = $logger;
     }
 
     public function create(Request $request): Response
@@ -63,6 +70,14 @@ abstract class BaseController extends AbstractController
         );
         $cacheItem->set($entity);
         $this->cache->save($cacheItem);
+
+        $this->logger->notice(
+            'Novo registro de {entidade} adicionado com id: {id}.',
+            [
+                'entidade' => get_class($entity),
+                'id' => $entity->getId()
+            ]
+        );
 
         $responseFactory = new ResponseFactory(
             true,

@@ -9,6 +9,7 @@ use App\Helper\EspecialidadeFactory;
 use App\Helper\ExtractorDataRequest;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
 
 class EspecialidadesController extends BaseController
 {
@@ -17,9 +18,10 @@ class EspecialidadesController extends BaseController
         EspecialidadeRepository $repository,
         EspecialidadeFactory $factory,
         ExtractorDataRequest $extractor,
-        CacheItemPoolInterface $cache
+        CacheItemPoolInterface $cache,
+        LoggerInterface $logger
     ) {
-        parent::__construct($repository, $entityManager, $factory, $extractor, $cache);
+        parent::__construct($repository, $entityManager, $factory, $extractor, $cache, $logger);
     }
 
     public function updateEntity(int $id, $newEntity)
